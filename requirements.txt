@@ -1,5 +1,4 @@
 streamlit
-transformers
 google-genai
 python-dotenv
 python-multipart
@@ -8,5 +7,4 @@ fastapi
 beautifulsoup4
 requests
 streamlit-option-menu
-pyttsx3
-googletrans
+googletrans==4.0.0rc1

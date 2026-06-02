@@ -5,8 +5,13 @@ from email.mime.application import MIMEApplication
 import os
 from googletrans import Translator, LANGUAGES
 import requests
-import pyttsx3
-from bs4 import BeautifulSoup
+
+# pyttsx3 requires system audio drivers — optional import for server deployment
+try:
+    import pyttsx3
+    TTS_AVAILABLE = True
+except Exception:
+    TTS_AVAILABLE = False
 
 def get_supported_languages():
     # Get the supported languages from googletrans
@@ -20,13 +25,19 @@ def translate_text(text, target_language):
         translated = translator.translate(text, dest=lang_code)
         return translated.text
     except Exception as e:
-        print(f"Error during translation: {e}")  # Debugging
+        print(f"Error during translation: {e}")
         return "Translation failed."
 
 def text_to_speech(text):
-    engine = pyttsx3.init()
-    engine.say(text)
-    engine.runAndWait()
+    if not TTS_AVAILABLE:
+        return False
+    try:
+        engine = pyttsx3.init()
+        engine.say(text)
+        engine.runAndWait()
+        return True
+    except Exception:
+        return False
 
 
 def send_email(sender_email, receiver_email, subject, body, attachment_paths=None):
@@ -49,21 +60,16 @@ def send_email(sender_email, receiver_email, subject, body, attachment_paths=Non
                 message.attach(part)
 
         # Use a secure connection (TLS)
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:  # Replace with your email provider's SMTP server
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
-            # Login to the sender's email account (you may need to use an app password)
-            # For Gmail, enable "Less secure app access" or use an app password:
-            # https://myaccount.google.com/apppasswords
-            # Note: Password should be provided via environment variable or prompt in Streamlit
-            password = os.getenv("EMAIL_PASSWORD", "")  # Get password from environment
+            password = os.getenv("EMAIL_PASSWORD", "")
             if not password:
                 print("Error: EMAIL_PASSWORD environment variable not set")
                 return False
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
 
-
-        return True  # Email sent successfully
+        return True
     except Exception as e:
-        print(f"Error sending email: {e}")  # Log the error
-        return False  # Email sending failed
+        print(f"Error sending email: {e}")
+        return False

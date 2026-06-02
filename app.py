@@ -113,33 +113,8 @@ def main():
 def compose_email_page():
     st.title("📧 Compose New Email")
 
-    # --- Show API status ---
-    if GROQ_API_KEY:
-        st.success("✨ Using Groq API (FREE & Fast!) — Llama 3 powered")
-        st.info(
-            "**Groq Free API Features:**\n\n"
-            "✅ **Primary Model**: Llama 3.3 70B (high quality)\n"
-            "✅ **Fallback Model**: Llama 3.1 8B (ultra fast)\n"
-            "✅ **Free tier**: 30 requests/min, 14,400 req/day\n"
-            "✅ **No credit card required**\n"
-            "✅ **Lightning fast**: Groq's LPU hardware\n"
-            "✅ **Smart caching**: Duplicate prompts served instantly\n\n"
-            "**Your API Status**: ✅ Groq Connected"
-        )
-    elif GOOGLE_API_KEY:
-        st.success("✨ Using Google Gemini Free API")
-        st.info(
-            "**Tip**: For better rate limits, add a free Groq API key!\n"
-            "Get one at: https://console.groq.com/keys\n\n"
-            "**Your API Status**: ✅ Gemini Connected"
-        )
-    else:
-        st.error(
-            "❌ No API key found!\n\n"
-            "Add one of these to your `.env` file:\n"
-            "- `GROQ_API_KEY=your_key` (recommended, get free at https://console.groq.com/keys)\n"
-            "- `GOOGLE_API_KEY=your_key`"
-        )
+    if not GROQ_API_KEY and not GOOGLE_API_KEY:
+        st.error("❌ No API key configured. Please contact the administrator.")
         return
 
     # --- User Input Form ---
@@ -261,8 +236,10 @@ def email_preview_page():
         st.write(st.session_state.generated_email)
 
         # --- Read Aloud ---
-        if st.button("Read Aloud"):
-            utils.text_to_speech(st.session_state.generated_email)
+        if st.button("🔊 Read Aloud"):
+            result = utils.text_to_speech(st.session_state.generated_email)
+            if result is False:
+                st.info("🔇 Text-to-speech is not available in the deployed version. Works locally on desktop.")
 
         # --- Translation ---
         target_language = st.selectbox("Translate to:", ["", "Spanish", "French", "German", "Chinese", "Japanese","Telugu","Hindi"] + sorted(utils.get_supported_languages()))
