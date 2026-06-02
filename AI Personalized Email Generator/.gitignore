@@ -1,0 +1,28 @@
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables (API keys)
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Attachments (uploaded files)
+attachments/
+
+# Zip archives
+*.zip
